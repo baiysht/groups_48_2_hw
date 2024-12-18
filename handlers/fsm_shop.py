@@ -14,6 +14,7 @@ class FSMShop(StatesGroup):
     Category = State()
     Price = State()
     Infoproduct = State()
+    Collection = State()
     Photo = State()
     Submit = State()
 
@@ -65,6 +66,14 @@ async def load_infopruduct(message: types.Message, state: FSMContext):
         data['infoproduct'] = message.text
 
     await FSMShop.next()
+    await message.answer('Укажите коллекцию товара:', reply_markup=cancel_markup)
+
+
+async def load_collection(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['collection'] = message.text
+
+    await FSMShop.next()
     await message.answer('Отправьте фотку товара:', reply_markup=cancel_markup)
 
 
@@ -99,6 +108,10 @@ async def load_submit(message: types.Message, state: FSMContext):
                 category=data['category'],
                 infoproduct=data['infoproduct']
             )
+            await main_db.sql_insert_collection_products(
+                productid=data['productid'],
+                collection=data['collection']
+            )
             await message.answer('Ваши данные в базе!')
             await state.finish()
 
@@ -128,5 +141,6 @@ def register_fsmshop_handlers(dp: Dispatcher):
     dp.register_message_handler(load_category, state=FSMShop.Category)
     dp.register_message_handler(load_price, state=FSMShop.Price)
     dp.register_message_handler(load_infopruduct, state=FSMShop.Infoproduct)
+    dp.register_message_handler(load_collection, state=FSMShop.Collection)
     dp.register_message_handler(load_photo, state=FSMShop.Photo, content_types=['photo'])
     dp.register_message_handler(load_submit, state=FSMShop.Submit)

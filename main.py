@@ -20,6 +20,7 @@ async def on_shutdown(_):
 
 commands.register_commands_handlers(dp)
 quiz.register_quiz_handlers(dp)
+
 fsm_reg.register_fsmreg_handlers(dp)
 fsm_shop.register_fsmshop_handlers(dp)
 
